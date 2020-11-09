@@ -13,70 +13,76 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springblade.system.entity;
+package org.springblade.system.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springblade.core.mp.base.BaseEntity;
+import org.springblade.core.tool.node.INode;
+import org.springblade.core.tool.utils.Func;
+import org.springblade.system.entity.Region;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * 实体类
+ * 行政区划表视图实体类
  *
  * @author Chill
  */
 @Data
-@TableName("blade_tenant")
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Tenant对象", description = "Tenant对象")
-public class Tenant extends BaseEntity {
-
+@ApiModel(value = "RegionVO对象", description = "行政区划表")
+public class RegionVO extends Region implements INode {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 主键id
+	 * 主键ID
 	 */
-	@ApiModelProperty(value = "主键")
-	@TableId(value = "id", type = IdType.ASSIGN_ID)
 	@JsonSerialize(using = ToStringSerializer.class)
 	private Long id;
 
 	/**
-	 * 租户ID
+	 * 父节点ID
 	 */
-	@ApiModelProperty(value = "租户ID")
-	private String tenantId;
-	/**
-	 * 租户名称
-	 */
-	@ApiModelProperty(value = "租户名称")
-	private String tenantName;
-	/**
-	 * 域名地址
-	 */
-	@ApiModelProperty(value = "域名地址")
-	private String domain;
-	/**
-	 * 联系人
-	 */
-	@ApiModelProperty(value = "联系人")
-	private String linkman;
-	/**
-	 * 联系电话
-	 */
-	@ApiModelProperty(value = "联系电话")
-	private String contactNumber;
-	/**
-	 * 联系地址
-	 */
-	@ApiModelProperty(value = "联系地址")
-	private String address;
+	@JsonSerialize(using = ToStringSerializer.class)
+	private Long parentId;
 
+	/**
+	 * 父节点名称
+	 */
+	private String parentName;
 
+	/**
+	 * 是否有子孙节点
+	 */
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	private Boolean hasChildren;
+
+	/**
+	 * 子孙节点
+	 */
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	private List<INode> children;
+
+	@Override
+	public Long getId() {
+		return Func.toLong(this.getCode());
+	}
+
+	@Override
+	public Long getParentId() {
+		return Func.toLong(this.getParentCode());
+	}
+
+	@Override
+	public List<INode> getChildren() {
+		if (this.children == null) {
+			this.children = new ArrayList<>();
+		}
+		return this.children;
+	}
 }
